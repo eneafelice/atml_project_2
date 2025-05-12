@@ -12,15 +12,18 @@ def hf_sentiment_analysis(text):
     response = requests.post(HF_API_URL, headers=headers, json=payload)
     return response.json()
 
-# ---------------- Gemini 1.5 Pro API via AI Studio ----------------
+# ---------------- Gemini 1.5 Flash API via AI Studio ----------------
 GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "your-gemini-api-key")
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
 def call_gemini_api(prompt):
     headers = {"Content-Type": "application/json"}
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
     response = requests.post(GEMINI_URL, headers=headers, json=payload)
-    return response.json()
+    try:
+        return response.json()
+    except Exception as e:
+        return {"error": str(e)}
 
 # ---------------- Streamlit UI ----------------
 st.sidebar.title("👨‍👩‍👧‍👦 Parent Dashboard")
@@ -51,23 +54,6 @@ elif page == "❤️ Wellbeing":
         combined_text_list = df[['direction', 'sender', 'recipient', 'subject', 'body']].astype(str).agg(' '.join, axis=1).tolist()
         full_text = " ".join(combined_text_list)
 
-        # Gemini Analysis
-        gemini_result = call_gemini_api(f"Analyze these school emails for emotional risk and communication tone:\n{full_text}")
-        st.subheader("⚠️ Risk Assessment")
-        st.write(gemini_result)
+        # Gemini
 
-        # Hugging Face Sentiment Analysis
-        sentiment_results = [hf_sentiment_analysis(text) for text in combined_text_list[:5]]  # limit to first 5 for speed
-        st.subheader("📊 Sentiment Analysis (Sampled)")
-        st.write(sentiment_results)
-    else:
-        st.info("Please upload a CSV to analyze wellbeing.")
-
-# ---------------- Smart Parenting Page ----------------
-elif page == "🧠 Smart Parenting":
-    st.header("🧠 Smart Parenting Assistant")
-    user_input = st.text_input("Ask your question:")
-    if st.button("Send") and user_input:
-        reply = call_gemini_api(user_input)
-        st.write(reply)
 
