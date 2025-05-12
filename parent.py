@@ -73,13 +73,21 @@ elif page == "❤️ Wellbeing":
         st.write(sentiment_results)
     else:
         st.info("Please upload a CSV to analyze wellbeing.")
-
+        
 # ---------------- Smart Parenting Page ----------------
 elif page == "🧠 Smart Parenting":
     st.header("🧠 Smart Parenting Assistant")
+
+    # Auto-generate 3 suggestions on page load
+    st.subheader("📝 Suggested Tips for Parents")
+    auto_tips_prompt = "Provide 3 short, actionable parenting or educational tips for parents monitoring their child's digital wellbeing."
+    auto_tips = call_gemini_api(auto_tips_prompt)
+    st.write(auto_tips)
+
+    # User input for additional questions
+    st.subheader("💬 Ask for More Guidance")
     user_input = st.text_input("Ask your question about your child's wellbeing or digital behavior:")
     if st.button("Send") and user_input:
         reply = call_gemini_api(user_input)
         st.write(reply)
-
 
