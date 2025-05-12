@@ -1,0 +1,31 @@
+email_id,direction,sender,recipient,subject,body
+1,incoming,teacher@school.com,student@school.com,Homework Reminder,"Dear students, don't forget to submit your math homework by tomorrow."
+2,outgoing,student@school.com,teacher@school.com,Homework Submission,"Hi, I have attached my completed math homework as requested. Thanks!"
+3,incoming,principal@school.com,student@school.com,Disciplinary Notice,We regret to inform you that you have received a detention for inappropriate behavior.
+4,outgoing,student@school.com,counselor@school.com,Feeling Overwhelmed,I'm feeling really stressed with all these deadlines. I don’t know if I can handle it.
+5,incoming,staff@school.com,student@school.com,Event Announcement,Join us for the school talent show this Friday at 5 PM in the auditorium.
+6,outgoing,student@school.com,staff@school.com,Re: Event Announcement,Looking forward to participating in the talent show!
+7,incoming,admin@school.com,student@school.com,Safety Alert,There has been an incident outside school grounds. Please be cautious on your way home.
+8,outgoing,student@school.com,parent@home.com,Safety Concern,School sent a warning about something that happened outside. I’ll come straight home.
+9,incoming,teacher@school.com,student@school.com,Class Cancellation,"Due to teacher illness, tomorrow's chemistry class is cancelled."
+10,outgoing,student@school.com,friend@school.com,Free Period Tomorrow,No chemistry tomorrow! Want to meet up at the library instead?
+11,incoming,teacher@school.com,student@school.com,Appreciation Note,Thank you for helping clean up after the school event. We appreciate your effort.
+12,outgoing,student@school.com,teacher@school.com,Re: Appreciation Note,Happy to help!
+13,incoming,admin@school.com,student@school.com,Exam Schedule,The final exams will start next Monday. Please check the schedule online.
+14,outgoing,student@school.com,teacher@school.com,Exam Schedule Question,Can you confirm the exam time for history?
+15,incoming,teacher@school.com,student@school.com,Missing Assignment,Our records show you have not submitted your history essay. Please submit ASAP.
+16,outgoing,student@school.com,teacher@school.com,Late Submission,Sorry for the delay. I’ve just submitted my history essay.
+17,incoming,counselor@school.com,student@school.com,Counseling Offer,"If you're feeling stressed or overwhelmed, our school counselor is available to help."
+18,outgoing,student@school.com,counselor@school.com,Need to Talk,Can I book a time to speak with you about some personal issues?
+19,incoming,admin@school.com,student@school.com,Parent-Teacher Meeting,Reminder: Parent-teacher conferences are scheduled for this Thursday.
+20,outgoing,student@school.com,parent@home.com,PT Meeting Reminder,Just a reminder about the meeting this Thursday.
+21,incoming,admin@school.com,student@school.com,Lost and Found,A phone was found in the cafeteria. Please contact the office if it's yours.
+22,outgoing,student@school.com,admin@school.com,Lost Item,I think that’s my phone. Can I come check it?
+23,incoming,principal@school.com,student@school.com,Bullying Report,We have received a report regarding bullying. An investigation is underway.
+24,outgoing,student@school.com,counselor@school.com,Reporting Bullying,I’ve seen someone being bullied in the hallway today.
+25,incoming,coach@school.com,student@school.com,Sports Team Update,Congratulations to the soccer team for reaching the finals!
+26,outgoing,student@school.com,coach@school.com,Re: Sports Team,Thanks coach! We’ll give it our best shot in the finals.
+27,incoming,librarian@school.com,student@school.com,Library Reminder,Books borrowed from the library are due next week. Please return them on time.
+28,outgoing,student@school.com,librarian@school.com,Re: Book Return,"Got it, I’ll return the books tomorrow."
+29,incoming,admin@school.com,student@school.com,Locker Cleanup,Please clean out your lockers before the end of term.
+30,outgoing,student@school.com,admin@school.com,Re: Locker Cleanup,Will do! Thanks for the reminder.
