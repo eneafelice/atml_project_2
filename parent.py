@@ -1,104 +1,73 @@
 import streamlit as st
 import pandas as pd
 import requests
-from transformers import pipeline
 
-# Hugging Face Sentiment Pipeline
-sentiment_pipe = pipeline("text-classification", model="siebert/sentiment-roberta-large-english")
+# ---------------- Hugging Face Inference API Setup ----------------
+HF_API_KEY = st.secrets.get("HF_API_KEY", "your-hf-api-key")
+HF_API_URL = "https://api-inference.huggingface.co/models/siebert/sentiment-roberta-large-english"
 
-# Gemini API Connection (Replace with real API key and endpoint)
-GEMINI_API_KEY = "your-gemini-api-key"
-GEMINI_ENDPOINT = "https://api.your-gemini-endpoint.com/analyze"
-
-def call_gemini_api(prompt):
-    response = requests.post(
-        GEMINI_ENDPOINT,
-        json={"prompt": prompt},
-        headers={"Authorization": f"Bearer {GEMINI_API_KEY}"}
-    )
+def hf_sentiment_analysis(text):
+    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+    payload = {"inputs": text}
+    response = requests.post(HF_API_URL, headers=headers, json=payload)
     return response.json()
 
-# Sentiment Analysis Function
-def sentiment_analysis(texts):
-    results = sentiment_pipe(texts)
-    positive = sum(1 for r in results if r['label'] == 'POSITIVE')
-    negative = sum(1 for r in results if r['label'] == 'NEGATIVE')
-    total = len(results)
-    neutral = total - positive - negative
-    score = round((positive - negative) / total * 10, 2) if total else 0
-    return {
-        "score": score,
-        "positive": f"{(positive / total) * 100:.2f}%" if total else "0%",
-        "neutral": f"{(neutral / total) * 100:.2f}%" if total else "0%",
-        "negative": f"{(negative / total) * 100:.2f}%" if total else "0%",
-    }
+# ---------------- Gemini 1.5 Pro API via AI Studio ----------------
+GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "your-gemini-api-key")
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}"
 
-# Sidebar Navigation
+def call_gemini_api(prompt):
+    headers = {"Content-Type": "application/json"}
+    payload = {"contents": [{"parts": [{"text": prompt}]}]}
+    response = requests.post(GEMINI_URL, headers=headers, json=payload)
+    return response.json()
+
+# ---------------- Streamlit UI ----------------
 st.sidebar.title("👨‍👩‍👧‍👦 Parent Dashboard")
 page = st.sidebar.radio("Navigate", ["📊 Overview", "❤️ Wellbeing", "🧠 Smart Parenting"])
-
-# Data Upload (Used in All Pages)
 uploaded_file = st.sidebar.file_uploader("Upload Email CSV", type="csv")
 
+df = pd.read_csv(uploaded_file) if uploaded_file else None
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)
     st.sidebar.success(f"Uploaded {len(df)} emails")
-else:
-    df = None
 
-# Overview Page
+# ---------------- Overview Page ----------------
 if page == "📊 Overview":
     st.header("📊 Overview")
-
     if df is not None:
         st.subheader("Activity Overview")
-
-        # Metrics Derived From Data
-        total_emails = len(df)
-        today_emails = df.head(3)  # Simulating "today's" emails
-        screen_time = f"{total_emails * 5} min"  # Example: 5 min per email
-
-        st.metric("📧 Total Emails", f"{total_emails} (Today: {len(today_emails)})")
-        st.metric("⏰ Estimated Screen Time", screen_time)
+        st.metric("📧 Total Emails", len(df))
+        st.metric("⏰ Estimated Screen Time", f"{len(df) * 5} min")
         st.metric("🔍 Safety Score", "Calculated in Wellbeing Tab")
         st.dataframe(df)
     else:
         st.info("Please upload a CSV to view activity overview.")
 
-# Wellbeing Page
+# ---------------- Wellbeing Page ----------------
 elif page == "❤️ Wellbeing":
     st.header("❤️ Wellbeing Analysis")
-
     if df is not None:
         st.write("### Uploaded Emails", df)
+        combined_text_list = df[['direction', 'sender', 'recipient', 'subject', 'body']].astype(str).agg(' '.join, axis=1).tolist()
+        full_text = " ".join(combined_text_list)
 
-        # Preparing Full Text for Analysis
-        combined_text = df[['direction', 'sender', 'recipient', 'subject', 'body']].astype(str).agg(' '.join, axis=1).tolist()
-        full_text = " ".join(combined_text)
-
-        # Call Gemini API for Risk and Tone
-        gemini_response = call_gemini_api(f"Analyze the following school emails for risk and communication tone:\n{full_text}")
-
+        # Gemini Analysis
+        gemini_result = call_gemini_api(f"Analyze these school emails for emotional risk and communication tone:\n{full_text}")
         st.subheader("⚠️ Risk Assessment")
-        st.write(gemini_response.get("risk_assessment", {}))
+        st.write(gemini_result)
 
-        st.subheader("🎭 Communication Tone")
-        st.write(gemini_response.get("communication_tone", {}))
-
-        # Sentiment Analysis
-        sentiment_result = sentiment_analysis(combined_text)
-        st.subheader("📊 Sentiment Analysis")
-        st.write(sentiment_result)
+        # Hugging Face Sentiment Analysis
+        sentiment_results = [hf_sentiment_analysis(text) for text in combined_text_list[:5]]  # limit to first 5 for speed
+        st.subheader("📊 Sentiment Analysis (Sampled)")
+        st.write(sentiment_results)
     else:
         st.info("Please upload a CSV to analyze wellbeing.")
 
-# Smart Parenting Page
+# ---------------- Smart Parenting Page ----------------
 elif page == "🧠 Smart Parenting":
     st.header("🧠 Smart Parenting Assistant")
-
-    user_input = st.text_input("Ask your question about your child's digital wellbeing:")
-
+    user_input = st.text_input("Ask your question:")
     if st.button("Send") and user_input:
-        response = call_gemini_api(user_input)
-        st.write(response.get("response", "No response received."))
+        reply = call_gemini_api(user_input)
+        st.write(reply)
 
