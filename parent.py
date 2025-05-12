@@ -10,9 +10,12 @@ def hf_sentiment_analysis(text):
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
     payload = {"inputs": text}
     response = requests.post(HF_API_URL, headers=headers, json=payload)
-    return response.json()
+    try:
+        return response.json()
+    except Exception as e:
+        return {"error": str(e)}
 
-# ---------------- Gemini 1.5 Flash API via AI Studio ----------------
+# ---------------- Gemini 1.5 Flash API Setup ----------------
 GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "your-gemini-api-key")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
@@ -20,10 +23,12 @@ def call_gemini_api(prompt):
     headers = {"Content-Type": "application/json"}
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
     response = requests.post(GEMINI_URL, headers=headers, json=payload)
-    try:
-        return response.json()
-    except Exception as e:
-        return {"error": str(e)}
+
+    if response.status_code != 200:
+        return f"Error {response.status_code}: {response.text}"
+
+    result = response.json()
+    return result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "No response generated.")
 
 # ---------------- Streamlit UI ----------------
 st.sidebar.title("👨‍👩‍👧‍👦 Parent Dashboard")
@@ -54,6 +59,27 @@ elif page == "❤️ Wellbeing":
         combined_text_list = df[['direction', 'sender', 'recipient', 'subject', 'body']].astype(str).agg(' '.join, axis=1).tolist()
         full_text = " ".join(combined_text_list)
 
-        # Gemini
+        # Gemini Analysis
+        st.subheader("⚠️ Risk Assessment and Communication Tone")
+        gemini_result = call_gemini_api(f"Analyze these school emails for emotional risk and communication tone:\n{full_text}")
+        st.write(gemini_result)
+
+        # Hugging Face Sentiment Analysis (Sampled for Performance)
+        st.subheader("📊 Sentiment Analysis (Sampled 5 Emails)")
+        sentiment_results = []
+        for text in combined_text_list[:5]:  # limit to first 5 for performance
+            sentiment = hf_sentiment_analysis(text)
+            sentiment_results.append(sentiment)
+        st.write(sentiment_results)
+    else:
+        st.info("Please upload a CSV to analyze wellbeing.")
+
+# ---------------- Smart Parenting Page ----------------
+elif page == "🧠 Smart Parenting":
+    st.header("🧠 Smart Parenting Assistant")
+    user_input = st.text_input("Ask your question about your child's wellbeing or digital behavior:")
+    if st.button("Send") and user_input:
+        reply = call_gemini_api(user_input)
+        st.write(reply)
 
 
