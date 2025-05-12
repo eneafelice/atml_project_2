@@ -61,7 +61,18 @@ elif page == "❤️ Wellbeing":
 
         # Gemini Analysis
         st.subheader("⚠️ Risk Assessment and Communication Tone")
-        gemini_result = call_gemini_api(f"Analyze these school emails for emotional risk and communication tone:\n{full_text}")
+        gemini_result = call_gemini_api(f"You are a content safety assistant for a school-parent dashboard. Given the text of an email written by a student, return a list of behavioral or risk-related categories that apply to the email content.Only detect categories from a predefined list. If none apply, return an empty list. Do not rewrite or summarize the email. Do not generate advice.
+Allowed Categories:
+Violence
+Self-harm
+Gambling
+Sexual content
+Inappropriate language
+Scam / Phishing
+Academic cheating
+External contact
+Late-night use (only if time is provided)
+:\n{full_text}")
         st.write(gemini_result)
 
         # Hugging Face Sentiment Analysis (Sampled for Performance)
@@ -80,7 +91,7 @@ elif page == "🧠 Smart Parenting":
 
     # Auto-generate 3 suggestions on page load
     st.subheader("📝 Suggested Tips for Parents")
-    auto_tips_prompt = "Provide 3 short, actionable parenting or educational tips for parents monitoring their child's digital wellbeing."
+    auto_tips_prompt = "Provide 3 short, actionable parenting or educational tips based on the emails in the CSV File."
     auto_tips = call_gemini_api(auto_tips_prompt)
     st.write(auto_tips)
 
